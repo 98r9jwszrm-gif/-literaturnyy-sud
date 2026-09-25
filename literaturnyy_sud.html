@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Литературный суд</title>
+<style>
+:root{
+  --bg:#090a0d;--panel:#111318;--panel2:#171920;--paper:#e9e1d1;
+  --gold:#c8a45d;--gold2:#e6c77c;--text:#f4f0e7;--muted:#aaa59b;
+  --blue:#2f67b1;--blue2:#5c91dd;--red:#8f3038;--red2:#c6535d;
+  --green:#557d61;--shadow:0 18px 50px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box}
+body{margin:0;background:
+ radial-gradient(circle at 15% 10%,rgba(47,103,177,.10),transparent 28%),
+ radial-gradient(circle at 85% 10%,rgba(143,48,56,.10),transparent 28%),
+ linear-gradient(135deg,#08090b,#111217 55%,#08090b);
+ color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+button{font:inherit;color:inherit}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:72px;border-bottom:1px solid #292b31;background:rgba(9,10,13,.92);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:20}
+.brand{font-family:Georgia,serif;letter-spacing:.09em;color:var(--gold2);font-size:18px}.brand span{color:#8e8b83}
+.scores{display:flex;gap:9px;align-items:center}.score{min-width:145px;padding:9px 13px;border:1px solid #30323a;border-radius:11px;background:#101116;display:flex;justify-content:space-between;gap:18px}.score b{font-size:20px}.score.blue b{color:var(--blue2)}.score.red b{color:var(--red2)}
+main{width:min(1240px,calc(100% - 30px));margin:0 auto;padding:28px 0 40px;flex:1}
+.view{display:none;animation:fade .25s ease}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.hero{min-height:calc(100vh - 120px);display:grid;place-items:center;text-align:center}
+.hero-inner{max-width:850px}
+.scales{font-size:62px;filter:drop-shadow(0 10px 22px rgba(200,164,93,.16));margin-bottom:15px}
+h1,h2,h3{font-family:Georgia,serif;font-weight:500}
+h1{font-size:clamp(42px,7vw,82px);letter-spacing:.05em;margin:0 0 13px;color:#f3ecdc}
+.subtitle{font-family:Georgia,serif;color:var(--gold2);font-size:clamp(17px,2vw,23px);font-style:italic}
+.lead{color:#bbb7af;line-height:1.7;max-width:680px;margin:24px auto}
+.primary{border:1px solid #b89552;background:linear-gradient(180deg,#d2b56f,#a98442);color:#17130b;padding:14px 26px;border-radius:10px;font-weight:800;letter-spacing:.05em;cursor:pointer;box-shadow:0 8px 25px rgba(200,164,93,.18);transition:.18s}.primary:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.secondary{border:1px solid #383a42;background:#15171c;padding:11px 16px;border-radius:9px;cursor:pointer;transition:.18s}.secondary:hover{background:#1c1f26}
+.intro-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:28px}
+.help{max-width:900px;margin:20px auto 0;background:linear-gradient(135deg,#13151a,#0e1014);border:1px solid #30323a;border-radius:18px;padding:25px;box-shadow:var(--shadow)}
+.help h2{margin-top:0;color:var(--gold2)}.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.rule{padding:14px;border:1px solid #292c33;border-radius:12px;background:#101217;color:#c9c5bc}.rule strong{display:block;color:#fff;margin-bottom:5px}
+
+.case-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.case-no{color:var(--gold);font-size:12px;letter-spacing:.16em;text-transform:uppercase}.case-title{font-size:36px;margin:5px 0 2px}.work{color:#aaa;font-family:Georgia,serif;font-style:italic}.progress{display:flex;gap:6px;align-items:center;white-space:nowrap}.dot{width:9px;height:9px;border-radius:50%;background:#343740}.dot.on{background:var(--gold);box-shadow:0 0 10px rgba(200,164,93,.45)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}.card{background:linear-gradient(145deg,#14161b,#101216);border:1px solid #2c2f37;border-radius:16px;box-shadow:var(--shadow)}.paper{background:linear-gradient(135deg,#e7dfcf,#d7cdb9);color:#25221c;border-color:#9c917c}.card-pad{padding:20px}
+.section-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9c988f;margin-bottom:8px}.paper .section-label{color:#6d6558}.brief{line-height:1.65;margin:0}.paper:after{content:"";display:block;height:1px;background:rgba(80,67,47,.22);margin-top:17px}
+.situation{border-color:#4b3f2b;background:radial-gradient(circle at 90% 0,rgba(200,164,93,.09),transparent 35%),#121317}.situation h2{margin:0 0 9px;color:#f0e7d6;font-size:25px}.situation p{line-height:1.7;color:#d0ccc3;margin:0}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.side{padding:16px;border-radius:13px;border:1px solid;cursor:pointer;min-height:150px;transition:.18s;position:relative;overflow:hidden}.side:hover{transform:translateY(-2px)}.side.blue{background:linear-gradient(135deg,rgba(47,103,177,.18),rgba(47,103,177,.05));border-color:#315a91}.side.red{background:linear-gradient(135deg,rgba(143,48,56,.18),rgba(143,48,56,.05));border-color:#75333a}.side h3{margin:0 0 7px;font-size:19px}.side.blue h3{color:#78a8e8}.side.red h3{color:#dc777e}.hint{font-size:13px;color:#b8b5ae;line-height:1.5}.side.selected{outline:2px solid var(--gold);box-shadow:0 0 0 4px rgba(200,164,93,.08)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.toolbtn{border:1px solid #373a42;background:#181a20;border-radius:11px;padding:13px 10px;cursor:pointer;transition:.18s;text-align:left}.toolbtn:hover{background:#20232a;border-color:#50545e}.toolbtn small{display:block;color:#8e8c86;margin-top:3px}.toolbtn.wide{grid-column:1/-1}.toolbtn.accent{border-color:#7d6332;background:linear-gradient(135deg,#211d14,#171715)}.toolbtn.turn{border-color:#6d5d2f;color:#e6ca83}.toolbtn:disabled{opacity:.38;cursor:not-allowed}
+.timer{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;border:1px solid #353840;border-radius:15px;background:#0c0e12;margin-bottom:12px}.timer-num{font-family:ui-monospace,SFMono-Regular,monospace;font-size:46px;letter-spacing:.04em;color:#f4e7c8}.timer-num.warn{color:#e26d72}.timer-status{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#85827b;margin:2px 0 13px}.timer-actions{display:flex;gap:7px;width:100%}.timer-actions button{flex:1}.side-card h3{margin:0 0 13px;font-size:18px}.score-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.score-buttons button{padding:11px;border-radius:9px;border:1px solid #343740;background:#17191f;cursor:pointer}.score-buttons .add-blue{border-color:#315a91}.score-buttons .add-red{border-color:#75333a}
+.notice{margin-top:14px;padding:13px 15px;border-left:3px solid var(--gold);background:#12141a;border-radius:8px;color:#c9c5bc;line-height:1.55}.notice strong{color:#f1e6cc}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modal-box{width:min(760px,100%);max-height:88vh;overflow:auto;background:#121419;border:1px solid #3b3e47;border-radius:18px;box-shadow:0 30px 90px #000;padding:24px}.modal-box.paperish{background:linear-gradient(135deg,#e8dfcc,#d8cdb8);color:#26231d}.modal-head{display:flex;justify-content:space-between;gap:15px;align-items:center}.close{border:1px solid #40434c;background:#1a1c21;border-radius:8px;padding:7px 10px;cursor:pointer}.modal-box.paperish .close{color:#222;background:rgba(255,255,255,.35);border-color:#9d9179}.modal h2{margin:0;color:var(--gold2)}.modal-box.paperish h2{color:#3b3327}.modal-body{line-height:1.7;color:#ccc9c1}.modal-box.paperish .modal-body{color:#312d27}.evidence{margin:15px 0;padding:16px;border:1px solid #3a3d45;border-radius:12px;background:#0e1014}.modal-box.paperish .evidence{background:rgba(255,255,255,.25);border-color:#a99c83}.evidence strong{color:#f0dfb5}.modal-box.paperish .evidence strong{color:#493e2c}
+.verdict-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.verdict{padding:20px 12px;border:1px solid #383b43;border-radius:13px;background:#17191e;text-align:center;cursor:pointer;font-weight:800}.verdict:hover{border-color:var(--gold)}.verdict.selected{outline:2px solid var(--gold);background:#211d14}.comment{margin-top:15px;padding:15px;background:#101216;border:1px solid #30333b;border-radius:11px;color:#c8c4bb;line-height:1.6}
+.finish{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}.case-nav{display:flex;gap:8px}.case-nav button{border:1px solid #3b3e47;background:#17191f;padding:11px 14px;border-radius:9px;cursor:pointer}.case-nav button:disabled{opacity:.35;cursor:not-allowed}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,120px);background:#e9e1d1;color:#1b1915;padding:13px 18px;border-radius:10px;font-weight:700;z-index:100;box-shadow:0 12px 35px #0008;transition:.25s}.toast.show{transform:translate(-50%,0)}
+.footer-note{text-align:center;color:#666971;font-size:12px;margin-top:20px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.topbar{height:auto;min-height:68px;gap:12px;flex-wrap:wrap;padding:12px 15px}.scores{width:100%}.score{flex:1;min-width:0}.rules{grid-template-columns:1fr}.case-head{flex-direction:column}.case-title{font-size:30px}}
+@media(max-width:600px){main{width:min(100% - 18px,1240px);padding-top:18px}.sides{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.toolbtn.wide{grid-column:auto}.verdict-grid{grid-template-columns:1fr}.timer-num{font-size:40px}.brand{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">⚖ ЛИТЕРАТУРНЫЙ СУД <span>/ КЛАССНЫЙ РЕЖИМ</span></div>
+  <div class="scores">
+    <div class="score blue"><span>🔵 Адвокаты</span><b id="scoreBlue">0</b></div>
+    <div class="score red"><span>🔴 Прокуроры</span><b id="scoreRed">0</b></div>
+  </div>
+</header>
+
+<main>
+<section id="home" class="view active">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="scales">⚖️</div>
+      <h1>ЛИТЕРАТУРНЫЙ СУД</h1>
+      <div class="subtitle">«Где заканчивается обстоятельство и начинается личная ответственность?»</div>
+      <p class="lead">Три героя. Три дела. Две стороны. Один вердикт. Ведущий открывает факты, вызывает свидетелей, запускает таймер и решает, какие аргументы заслуживают балла.</p>
+      <div class="intro-actions">
+        <button class="primary" onclick="startGame()">▶ НАЧАТЬ СУД</button>
+        <button class="secondary" onclick="openHelp()">📖 СПРАВКА ДЛЯ ВЕДУЩЕГО</button>
+      </div>
+      <div class="footer-note">35–40 минут урока · игра 25–30 минут · без цитат и предварительной подготовки</div>
+    </div>
+  </div>
+</section>
+
+<section id="game" class="view">
+  <div class="case-head">
+    <div>
+      <div class="case-no" id="caseNo"></div>
+      <h1 class="case-title" id="caseTitle"></h1>
+      <div class="work" id="caseWork"></div>
+    </div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="card paper card-pad">
+        <div class="section-label">Короткая справка · кто это?</div>
+        <p class="brief" id="caseBrief"></p>
+      </div>
+      <div class="card situation card-pad" style="margin-top:14px">
+        <div class="section-label">Текущая ситуация</div>
+        <h2 id="situationTitle"></h2>
+        <p id="situationText"></p>
+        <div class="sides">
+          <button class="side blue" onclick="chooseSide('blue')">
+            <h3>🔵 ЗАЩИТА</h3>
+            <div class="hint" id="blueHint">Используйте факт для защиты героя.</div>
+          </button>
+          <button class="side red" onclick="chooseSide('red')">
+            <h3>🔴 ОБВИНЕНИЕ</h3>
+            <div class="hint" id="redHint">Используйте факт для обвинения героя.</div>
+          </button>
+        </div>
+        <div class="notice" id="argumentNotice"><strong>Ход дела:</strong> выберите сторону, чтобы открыть конкретную подсказку для аргумента.</div>
+      </div>
+
+      <div class="finish" style="margin-top:14px">
+        <div class="case-nav">
+          <button onclick="prevSituation()" id="prevSitBtn">← Предыдущая ситуация</button>
+          <button onclick="nextSituation()" id="nextSitBtn">Следующая ситуация →</button>
+        </div>
+        <div class="section-label" style="margin:0">Ситуация <span id="sitCounter"></span></div>
+      </div>
+      <div class="controls">
+        <button class="toolbtn accent" onclick="openWitness()">👤 ВЫЗВАТЬ СВИДЕТЕЛЯ<small>30–60 секунд на работу с показаниями</small></button>
+        <button class="toolbtn accent" onclick="openCircumstance()">⚡ НОВОЕ ОБСТОЯТЕЛЬСТВО<small>Факт, который может изменить спор</small></button>
+        <button class="toolbtn" onclick="startObjection()">⚔️ ВОЗРАЖЕНИЕ<small>30 секунд: найдите факт против аргумента</small></button>
+        <button class="toolbtn turn" id="turnBtn" onclick="useTurn()">🔄 ПЕРЕВОРОТ<small id="turnText">1 жетон команды за игру</small></button>
+      </div>
+      <div class="finish">
+        <div class="case-nav">
+          <button onclick="prevCase()" id="prevBtn">← Предыдущее дело</button>
+          <button onclick="nextCase()" id="nextBtn">Следующее дело →</button>
+        </div>
+        <button class="primary" onclick="openVerdict()">⚖️ ФИНАЛЬНЫЙ ВЕРДИКТ</button>
+      </div>
+    </div>
+
+    <aside>
+      <div class="card card-pad">
+        <div class="timer">
+          <div class="timer-num" id="timer">01:00</div>
+          <div class="timer-status" id="timerStatus">готов</div>
+          <div class="timer-actions">
+            <button class="primary" onclick="startTimer(60)">▶ НАЧАТЬ</button>
+            <button class="secondary" onclick="pauseTimer()">⏸</button>
+            <button class="secondary" onclick="resetTimer()">↻</button>
+          </div>
+        </div>
+        <div class="section-label">Баллы ведущего</div>
+        <div class="score-buttons">
+          <button class="add-blue" onclick="addScore('blue')">+1 🔵 Адвокатам</button>
+          <button class="add-red" onclick="addScore('red')">+1 🔴 Прокурорам</button>
+        </div>
+      </div>
+      <div class="card card-pad side-card" style="margin-top:12px">
+        <h3>⚖️ Подсказка ведущему</h3>
+        <div id="hostHint" class="hint" style="line-height:1.7">Не оценивайте позицию заранее. Балл можно дать за ясный аргумент, конкретный эпизод или сильное возражение.</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="end" class="view">
+  <div class="hero" style="min-height:calc(100vh - 150px)">
+    <div class="hero-inner">
+      <div class="scales">⚖️</div>
+      <h1 style="font-size:clamp(38px,6vw,68px)">СУД ОКОНЧЕН</h1>
+      <p class="subtitle">Итог игры</p>
+      <div class="help" style="margin-top:25px">
+        <div class="scores" style="justify-content:center;gap:20px">
+          <div class="score blue"><span>🔵 Адвокаты</span><b id="finalBlue">0</b></div>
+          <div class="score red"><span>🔴 Прокуроры</span><b id="finalRed">0</b></div>
+        </div>
+        <p class="lead" style="margin-bottom:0">Окончательные вердикты относятся к литературной ответственности героев в рамках обсуждаемых дел, а не являются оценкой человека или эпохи.</p>
+      </div>
+      <button class="primary" onclick="location.reload()" style="margin-top:20px">↻ НАЧАТЬ ЗАНОВО</button>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head"><h2 id="modalTitle"></h2><button class="close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const cases=[
+{
+ title:"Родион Раскольников",work:"Ф. М. Достоевский — «Преступление и наказание»",
+ brief:"Раскольников — бывший студент, живущий в бедности. Он создаёт теорию о том, что некоторые выдающиеся люди якобы имеют право переступать через обычные моральные нормы. Он решает проверить эту теорию и убивает старуху-процентщицу. После преступления он мучается, постепенно осознаёт ошибочность своих убеждений и в итоге признаётся.",
+ accusation:"Сознательное убийство и нарушение нравственного закона ради проверки собственной теории.",
+ situations:[
+  {t:"Предварительный замысел",x:"Раскольников заранее обдумывает преступление и готовится к нему. Это не случайный поступок: решение формируется до самого убийства.",
+   b:"Подчеркните, что герой способен выбирать и планирует действие. Однако можно обсуждать, как бедность, теория и состояние героя влияют на его решение.",
+   r:"Отделите мотивы от ответственности: даже наличие тяжёлых обстоятельств не отменяет того, что герой заранее принимает решение."},
+  {t:"После преступления",x:"После убийства Раскольников испытывает страх, внутренний конфликт и чувство вины. Он не получает ожидаемого ощущения превосходства.",
+   b:"Покажите, что герой не остаётся безразличным: совесть и внутренний конфликт свидетельствуют о разрушении его теории.",
+   r:"Чувство вины возникает после совершённого поступка и не отменяет самого факта сознательного преступления."},
+  {t:"Сближение с Соней",x:"Раскольников сближается с Соней. Её позиция помогает ему перестать оправдывать себя теорией и принять необходимость ответственности.",
+   b:"Соня не принуждает его физически: путь к признанию становится внутренним выбором героя.",
+   r:"Сам факт, что ему требуется внешняя моральная опора, может показывать слабость его первоначальной теории."},
+  {t:"Признание",x:"Раскольников признаётся в преступлении. Признание становится важным шагом к принятию ответственности и изменению его отношения к собственному поступку.",
+   b:"Используйте признание как доказательство способности героя осознать вину и изменить отношение к содеянному.",
+   r:"Осознание вины после преступления не отменяет ответственности за уже совершённый поступок."}
+ ],
+ witnesses:[
+  ["Соня Мармеладова","Соня узнаёт о преступлении Раскольникова и становится одним из людей, которые помогают ему принять ответственность и признаться.","Она может подтвердить, что герой способен на нравственный перелом, но также показать, насколько тяжело ему принять последствия."],
+  ["Порфирий Петрович","Следователь понимает психологию Раскольникова и постепенно подводит его к признанию, не сводя дело только к формальному наказанию.","Его позиция позволяет обсуждать разницу между юридической ответственностью и внутренним признанием вины."],
+  ["Разумихин","Друг Раскольникова, который поддерживает его в тяжёлый период и сохраняет к нему человеческое отношение.","Его отношение позволяет показать, что герой не исчерпывается одним поступком и остаётся сложной личностью."]
+ ],
+ circumstances:[
+  "Раскольников не просто совершил преступление — после него его собственная теория начинает разрушаться, а внутреннее состояние становится всё тяжелее.",
+  "Он признаётся не сразу: путь к признанию проходит через страх, внутреннюю борьбу и влияние Сони.",
+  "Преступление было задумано как проверка идеи о «праве» некоторых людей переступать через других. Сам опыт героя показывает, что теория не даёт ему ожидаемой свободы."
+ ],
+ comment:"Произведение намеренно связывает ответственность героя не только с законом, но и с нравственным самоосмыслением."
+},
+{
+ title:"Евгений Онегин",work:"А. С. Пушкин — «Евгений Онегин»",
+ brief:"Онегин — молодой дворянин, которому наскучила светская жизнь. Он знакомится с Ленским и Татьяной. На именинах Татьяны Онегин намеренно уделяет внимание Ольге, из-за чего Ленский ревнует и вызывает его на дуэль. Онегин принимает вызов. Ленский погибает.",
+ accusation:"Ответственность за гибель Ленского и последствия собственного поведения.",
+ situations:[
+  {t:"Именины Татьяны",x:"На именинах Татьяны Онегин демонстративно уделяет внимание Ольге, что вызывает ревность Ленского и обостряет конфликт.",
+   b:"Обсудите возможность считать поведение Онегина легкомысленной провокацией, а также то, что он мог не ожидать трагического продолжения.",
+   r:"Подчеркните, что Онегин сознательно раздражает друга и понимает его характер; его поведение становится одним из звеньев конфликта."},
+  {t:"Вызов Ленского",x:"Ленский, охваченный ревностью и оскорблением, вызывает Онегина на дуэль.",
+   b:"Инициатором непосредственного вызова был Ленский. Это важный факт при обсуждении степени ответственности Онегина.",
+   r:"Даже если вызов исходит от Ленского, можно спросить: почему Онегин не попытался снять конфликт иначе?"},
+  {t:"Онегин принимает вызов",x:"Онегин принимает вызов на дуэль. В дворянском обществе отказ мог восприниматься как нарушение представлений о чести и репутации.",
+   b:"Используйте давление общественных норм: решение происходит не в пустоте, а внутри культуры дуэли и представлений о чести.",
+   r:"Онегин остаётся человеком, принимающим решение. Наличие общественных норм не делает выбор полностью автоматическим."},
+  {t:"Смерть Ленского",x:"На дуэли Онегин стреляет и смертельно ранит Ленского. Ленский погибает.",
+   b:"Смерть — результат целой цепочки событий, а непосредственный выстрел происходит в рамках дуэли, на которую согласились оба.",
+   r:"Именно решение участвовать в дуэли делает Онегина непосредственным участником трагедии; нельзя игнорировать итог его выбора."},
+  {t:"После трагедии",x:"После смерти Ленского Онегин покидает привычный круг и оказывается перед последствиями произошедшего. Позднее история его отношений с Татьяной показывает, что прошлое продолжает на него влиять.",
+   b:"Можно показать, что герой не воспринимает трагедию как пустяк и сталкивается с последствиями собственного поведения.",
+   r:"Позднее переживание не возвращает погибшего и не отменяет ответственности за принятое ранее решение."}
+ ],
+ witnesses:[
+  ["Владимир Ленский","Молодой поэт и друг Онегина. Его ревность к Ольге становится непосредственным поводом для конфликта.","Его показания помогают увидеть эмоциональную сторону конфликта и одновременно ограниченность взгляда самого Ленского."],
+  ["Татьяна Ларина","Татьяна влюбляется в Онегина и позже получает от него отказ; её история показывает последствия поведения героя для других людей.","Её история позволяет говорить о том, что поступки Онегина влияют на окружающих даже тогда, когда он не ставит целью причинить им вред."],
+  ["Ольга Ларина","Невеста Ленского и объект внимания Онегина на именинах Татьяны.","Её роль помогает восстановить цепочку событий: поведение Онегина — ревность Ленского — вызов — дуэль."]
+ ],
+ circumstances:[
+  "Онегин мог отказаться от дуэли, но общественные представления о чести и страх прослыть трусом создавали сильное давление.",
+  "Непосредственно вызов сделал Ленский, находившийся в состоянии ревности и обиды.",
+  "Онегин не выглядит человеком, заранее стремившимся убить друга: трагедия возникает из сочетания личных решений, эмоций и норм общества."
+ ],
+ comment:"Пушкин строит трагедию так, чтобы ответственность не сводилась к одному человеку: в ней переплетаются характеры героев и нормы дворянского общества."
+},
+{
+ title:"Григорий Печорин",work:"М. Ю. Лермонтов — «Герой нашего времени»",
+ brief:"Печорин — умный, противоречивый офицер. Он хорошо понимает людей, но часто использует это понимание в своих интересах. В разных историях он вмешивается в судьбы Бэлы, княжны Мери, Грушницкого и Веры. Его поступки приводят к тяжёлым последствиям.",
+ accusation:"Сознательное вмешательство в судьбы других людей и причинение им страданий.",
+ situations:[
+  {t:"История с Бэлой",x:"Печорин добивается Бэлы и фактически меняет её жизнь. Поначалу она привязывается к нему, но его интерес постепенно угасает.",
+   b:"Можно говорить о том, что Печорин действует в рамках сложной среды и сам не обещает ей устойчивого будущего; также он осознаёт собственную противоречивость.",
+   r:"Он понимает, что Бэла привязывается к нему, но всё равно использует ситуацию ради собственного интереса."},
+  {t:"Княжна Мери",x:"Печорин намеренно вовлекает княжну Мери в отношения, хотя не планирует обычной семейной жизни с ней. Он наблюдает за её реакциями и испытывает власть над её чувствами.",
+   b:"Печорин честно осознаёт собственные мотивы и не скрывает от себя, что действует эгоистично; это делает его не простым злодеем, а саморефлексирующим героем.",
+   r:"Осознание собственных мотивов усиливает вопрос об ответственности: он понимает возможные последствия, но продолжает игру."},
+  {t:"Конфликт с Грушницким",x:"Отношения Печорина и Грушницкого становятся всё более враждебными. Конфликт заканчивается дуэлью и гибелью Грушницкого.",
+   b:"Покажите, что конфликт развивается с обеих сторон и Грушницкий тоже принимает решения, которые ведут к трагедии.",
+   r:"Печорин сознательно участвует в опасном противостоянии и использует своё понимание людей внутри конфликта."},
+  {t:"Отношение к Вере",x:"Вера — человек, который глубже многих понимает Печорина и всё же испытывает к нему сильные чувства. Их отношения причиняют ей боль и остаются неразрешёнными.",
+   b:"Вера видит сложность Печорина и не воспринимает его как однозначно жестокого человека; это аргумент о его способности к привязанности.",
+   r:"Именно близость Веры делает последствия его эгоцентризма особенно заметными: понимание другого человека не всегда приводит к бережному отношению."},
+  {t:"Самоанализ Печорина",x:"Печорин постоянно анализирует собственные поступки и признаёт, что приносит другим несчастье. Он понимает свои противоречия, но не всегда меняет поведение.",
+   b:"Самоанализ показывает способность героя видеть собственные ошибки и задаваться вопросом о свободе и ответственности.",
+   r:"Знание о последствиях не равно изменению поведения. Осознанность может, наоборот, усиливать вопрос о личном выборе."}
+ ],
+ witnesses:[
+  ["Княжна Мери","Молодая женщина, на чувствах которой Печорин сознательно играет, хотя не собирается строить с ней будущее.","Её история показывает эмоциональные последствия поведения Печорина для другого человека."],
+  ["Грушницкий","Офицер, конфликтующий с Печориным. Их соперничество постепенно становится опасным и заканчивается дуэлью.","Его показания позволяют обсуждать взаимную ответственность и эскалацию конфликта."],
+  ["Вера","Женщина, которая глубоко понимает Печорина и сохраняет к нему чувства, несмотря на причинённую боль.","Её история показывает, что Печорин способен на сильную привязанность, но его поведение остаётся разрушительным."],
+  ["Максим Максимыч","Штабс-капитан, наблюдавший Печорина со стороны и вспоминающий его поступки в историях Кавказа.","Его взгляд помогает сравнить самооценку Печорина с тем, как его воспринимает другой человек."]
+ ],
+ circumstances:[
+  "Печорин сам замечает в себе разрушительную черту: он способен понимать людей, но часто превращает это понимание в инструмент.",
+  "Грушницкий не является пассивной фигурой: он тоже участвует в конфликте и принимает опасные решения.",
+  "Печорин способен на глубокую привязанность — это особенно видно в истории с Верой, однако чувства не всегда меняют его поведение.",
+  "Самоанализ Печорина показывает, что он понимает последствия своих поступков, но знание не всегда приводит к исправлению."
+ ],
+ comment:"Лермонтов делает Печорина сложным объектом суда: герой видит собственные противоречия, но продолжает действовать так, что другие люди страдают."
+}
+];
+
+let state={case:0,situation:0,blue:0,red:0,selected:null,blueTurnUsed:false,redTurnUsed:false,seconds:60,running:false,interval:null,witnessIndex:0,circIndex:0};
+const $=id=>document.getElementById(id);
+
+function startGame(){show('game');renderCase()}
+function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(id).classList.add('active')}
+function renderCase(){
+ const c=cases[state.case],s=c.situations[state.situation];
+ $('caseNo').textContent=`Дело №${state.case+1}`;
+ $('caseTitle').textContent=c.title;$('caseWork').textContent=c.work;
+ $('caseBrief').textContent=c.brief;
+ $('situationTitle').textContent=s.t;$('situationText').textContent=s.x;
+ $('blueHint').textContent=s.b;$('redHint').textContent=s.r;
+ $('argumentNotice').innerHTML='<strong>Ход дела:</strong> выберите сторону, чтобы открыть конкретную подсказку для аргумента.';
+ document.querySelectorAll('.side').forEach(x=>x.classList.remove('selected'));
+ $('progress').innerHTML=c.situations.map((_,i)=>`<span class="dot ${i===state.situation?'on':''}" title="Ситуация ${i+1}"></span>`).join('');
+ $('sitCounter').textContent=`${state.situation+1} / ${c.situations.length}`;
+ $('prevSitBtn').disabled=state.situation===0;
+ $('nextSitBtn').disabled=state.situation===c.situations.length-1;
+ $('prevBtn').disabled=state.case===0;
+ $('nextBtn').textContent=state.case===cases.length-1?'Завершить дела →':'Следующее дело →';
+ $('turnBtn').disabled=state.blueTurnUsed && state.redTurnUsed;
+ $('turnText').textContent=(state.blueTurnUsed?'🔵 использован':'🔵 доступен')+' · '+(state.redTurnUsed?'🔴 использован':'🔴 доступен');
+ $('hostHint').textContent='Не оценивайте позицию заранее. Балл можно дать за ясный аргумент, конкретный эпизод или сильное возражение.';
+ resetTimer();
+ updateScores();
+}
+function chooseSide(side){
+ state.selected=side;
+ document.querySelectorAll('.side').forEach(x=>x.classList.remove('selected'));
+ document.querySelector('.side.'+side).classList.add('selected');
+ const s=cases[state.case].situations[state.situation];
+ const label=side==='blue'?'🔵 Защита':'🔴 Обвинение';
+ const hint=side==='blue'?s.b:s.r;
+ $('argumentNotice').innerHTML=`<strong>${label}:</strong> ${hint}<br><span style="color:#8f8b83;font-size:13px">Теперь сформулируйте один главный аргумент и подкрепите его фактом из ситуации.</span>`;
+}
+function nextCase(){
+ if(state.case<cases.length-1){state.case++;state.situation=0;state.selected=null;state.blueTurnUsed=false;state.redTurnUsed=false;state.witnessIndex=0;state.circIndex=0;renderCase()}
+ else{openVerdict()}
+}
+function prevCase(){if(state.case>0){state.case--;state.situation=0;state.selected=null;state.blueTurnUsed=false;state.redTurnUsed=false;renderCase()}}
+function nextSituation(){
+ const c=cases[state.case];
+ if(state.situation<c.situations.length-1){state.situation++;state.selected=null;renderCase()}
+ else{toast('Последняя ситуация этого дела. Переходите к следующему делу.')}
+}
+function prevSituation(){
+ if(state.situation>0){state.situation--;state.selected=null;renderCase()}
+}
+function addScore(team){state[team]++;updateScores();toast(team==='blue'?'🔵 Адвокатам +1':'🔴 Прокурорам +1')}
+function updateScores(){$('scoreBlue').textContent=state.blue;$('scoreRed').textContent=state.red}
+function startTimer(sec){
+ clearInterval(state.interval);state.seconds=sec;state.running=true;$('timerStatus').textContent='идёт отсчёт';renderTimer();
+ state.interval=setInterval(()=>{state.seconds--;renderTimer();if(state.seconds<=0){clearInterval(state.interval);state.running=false;$('timerStatus').textContent='⏰ время истекло';toast('⏰ Время истекло! Теперь слово соперникам.')}},1000)
+}
+function pauseTimer(){if(!state.running)return;clearInterval(state.interval);state.running=false;$('timerStatus').textContent='пауза'}
+function resetTimer(){clearInterval(state.interval);state.running=false;state.seconds=60;$('timerStatus').textContent='готов';renderTimer()}
+function renderTimer(){const m=String(Math.floor(state.seconds/60)).padStart(2,'0'),s=String(state.seconds%60).padStart(2,'0');$('timer').textContent=m+':'+s;$('timer').classList.toggle('warn',false);$('timer').querySelector?.}
+function startObjection(){startTimer(30);openCustom('⚔️ Возражение',`<p><b>30 секунд.</b> Соперники должны найти факт из текущей ситуации, который противоречит аргументу другой команды.</p><div class="evidence"><strong>Формула:</strong><br>«Ваш аргумент опирается на ___, но в ситуации сказано ___, поэтому ___».</div><p>После ответа ведущий может нажать <b>+1</b> соответствующей команде.</p>`)}
+function openWitness(){
+ const c=cases[state.case],w=c.witnesses[state.witnessIndex%c.witnesses.length];state.witnessIndex++;
+ openCustom('👤 Свидетель',`<p><b>Свидетель: ${w[0]}</b></p><div class="evidence"><strong>Кто это?</strong><br>${w[1]}</div><p><b>Показание для суда:</b> ${w[2]}</p><div class="evidence"><strong>Вопрос команде:</strong><br>Как это показание можно использовать в вашей позиции?</div><p>Запустите таймер на 30–60 секунд.</p>`)
+}
+function openCircumstance(){
+ const c=cases[state.case],fact=c.circumstances[state.circIndex%c.circumstances.length];state.circIndex++;
+ openCustom('⚡ Новое обстоятельство',`<div class="evidence"><strong>Новый факт</strong><br>${fact}</div><p><b>Задача:</b> измените свою позицию или найдите новый аргумент с учётом этого обстоятельства.</p><p>Дайте командам 30–60 секунд. Это не «правильный ответ» — задача в том, чтобы отреагировать на новый факт.</p>`)
+}
+function useTurn(){
+ if(state.blueTurnUsed && state.redTurnUsed){toast('Оба жетона «Переворот» уже использованы.');return}
+ const buttons=[];
+ if(!state.blueTurnUsed) buttons.push('<button class="verdict" onclick="activateTurn(\'blue\')">🔵 ПЕРЕВОРОТ АДВОКАТОВ</button>');
+ if(!state.redTurnUsed) buttons.push('<button class="verdict" onclick="activateTurn(\'red\')">🔴 ПЕРЕВОРОТ ПРОКУРОРОВ</button>');
+ openCustom('🔄 Кто использует переворот?',`<p>Каждая команда может использовать этот жетон <b>один раз за всю игру</b>.</p><div class="verdict-grid">${buttons.join('')}</div>`);
+}
+function activateTurn(team){
+ if(team==='blue' && state.blueTurnUsed || team==='red' && state.redTurnUsed)return;
+ if(team==='blue')state.blueTurnUsed=true; else state.redTurnUsed=true;
+ closeModal();
+ const hero=cases[state.case].title;
+ openCustom('🔄 Переворот',`<p><b>${team==='blue'?'🔵 Адвокаты':'🔴 Прокуроры'}</b> использовали жетон.</p><p>Теперь соперники должны за 30 секунд найти аргумент <i>в пользу ${hero}</i>, которого они только что обвиняли.</p><div class="evidence"><strong>Задание:</strong><br>Назовите хотя бы один факт из дела, который позволяет понять, смягчить или оспорить ответственность героя.</div>`);
+ startTimer(30);
+ renderCase();
+}
+function openCustom(title,body,paper=false){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalBox').classList.toggle('paperish',paper);$('modal').classList.add('open')}
+function closeModal(){$('modal').classList.remove('open');$('modalBox').classList.remove('paperish')}
+function openHelp(){
+ openCustom('📖 Справка для ведущего',`
+ <p><b>Цель:</b> провести три коротких литературных суда, не требуя от класса точного знания текста.</p>
+ <div class="evidence"><strong>Один цикл:</strong><br>Ситуация → выбор стороны → 60 секунд аргумента → 30 секунд возражения → при желании свидетель → новое обстоятельство → следующий эпизод.</div>
+ <p><b>Баллы:</b> ведущий сам решает, когда нажать +1. Ориентиры: ясный аргумент, конкретный эпизод, сильное возражение.</p>
+ <p><b>Переворот:</b> каждая команда может один раз за игру потребовать от соперников найти аргумент в пользу героя, которого они обвиняли.</p>
+ <p><b>Финал:</b> после третьего дела нажмите «Финальный вердикт». Выберите «Виновен», «Частично виновен» или «Не виновен» как итог обсуждения литературной ответственности.</p>
+ <p style="color:#aaa"><b>Важно:</b> вердикт относится к литературной ответственности героя в рамках обсуждаемого дела, а не является оценкой человека или эпохи.</p>`);
+}
+function openVerdict(){
+ const c=cases[state.case];
+ openCustom('⚖️ Финальный вердикт',`
+ <p><b>${c.title}</b> — ${c.accusation}</p>
+ <p style="color:#aaa">Выберите итог обсуждения литературной ответственности героя.</p>
+ <div class="verdict-grid">
+  <button class="verdict" onclick="selectVerdict(this,'ВИНОВЕН')">ВИНОВЕН</button>
+  <button class="verdict" onclick="selectVerdict(this,'ЧАСТИЧНО ВИНОВЕН')">ЧАСТИЧНО ВИНОВЕН</button>
+  <button class="verdict" onclick="selectVerdict(this,'НЕ ВИНОВЕН')">НЕ ВИНОВЕН</button>
+ </div>
+ <div id="verdictComment"></div>
+ <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:9px">
+   <button class="secondary" onclick="closeModal()">Вернуться к делу</button>
+   <button class="primary" onclick="finishVerdict()">Продолжить</button>
+ </div>`);
+}
+function selectVerdict(btn,val){
+ document.querySelectorAll('.verdict').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');
+ $('verdictComment').innerHTML=`<div class="comment"><b>Литературоведческий комментарий:</b><br>${cases[state.case].comment}<br><br><span style="color:#aaa">Выбранный вердикт: ${val}</span></div>`;
+ state.currentVerdict=val;
+}
+function finishVerdict(){
+ if(!state.currentVerdict){toast('Сначала выберите вердикт.');return}
+ closeModal();
+ if(state.case<cases.length-1){state.case++;state.situation=0;state.selected=null;state.blueTurnUsed=false;state.redTurnUsed=false;state.currentVerdict=null;renderCase()}
+ else{$('finalBlue').textContent=state.blue;$('finalRed').textContent=state.red;show('end')}
+}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.toastT);window.toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.code==='Space' && $('game').classList.contains('active')){e.preventDefault();state.running?pauseTimer():startTimer(60)}})
+</script>
+</body>
+</html>
